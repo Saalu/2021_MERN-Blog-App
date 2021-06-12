@@ -1,15 +1,14 @@
-// const empCtrl = require('../controllers/empCtrl')
+const postCtrl = require("../controllers/postCtrl");
 
-// const router = require('express').Router()
+const router = require("express").Router();
 
-// router.route('/')
-//     .get(empCtrl.getEmps)
-//     .post(empCtrl.createEmps)
+router.route("/").get(postCtrl.getPosts);
 
-// router.route('/:id')
-//     .get(empCtrl.getEmp)
-//     .post(empCtrl.createEmps)
-//     .put(empCtrl.updateEmp)
-//     .delete(empCtrl.deleteEmp)
+router
+  .route("/:id")
+  .get(postCtrl.getPost)
+  .post(postCtrl.createPosts)
+  .put(postCtrl.updatePost)
+  .delete(postCtrl.deletePost);
 
-// module.exports = router
+module.exports = router;
