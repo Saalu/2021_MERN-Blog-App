@@ -1,4 +1,5 @@
 const Users = require("../models/User");
+const Post = require("../models/Post");
 const bcrypt = require("bcrypt");
 
 const userCtrl = {
@@ -9,14 +10,12 @@ const userCtrl = {
         req.body.password = await bcrypt.hash(req.body.password, salt);
       }
       try {
-        const { username, email, profilePic } = req.body;
         const updatedUser = await Users.findOneAndUpdate(
-          { _id: req.params.id },
+          req.params.id,
           {
-            username,
-            email,
-            profilePic,
-          }
+            $set: req.body,
+          },
+          { new: true }
         );
 
         res.json(updatedUser);
@@ -26,6 +25,35 @@ const userCtrl = {
       }
     } else {
       res.status(401).json({ msg: "You can update only your account" });
+    }
+  },
+
+  deleteUser: async (req, res) => {
+    if (req.body.userId === req.params.id) {
+      try {
+        const user = await Users.findById(req.params.id);
+        try {
+          await Post.deleteMany({ username: user.username });
+          await Users.findByIdAndDelete(req.params.id);
+          res.status(200).json({ msg: "User has been deleted..." });
+        } catch (err) {
+          res.status(500).json({ msg: err.message });
+        }
+      } catch (err) {
+        res.status(404).json({ msg: "User not found!" });
+      }
+    } else {
+      res.status(401).json({ msg: "You can update only your account!" });
+    }
+  },
+
+  getUser: async (req, res) => {
+    try {
+      const user = await Users.findById(req.params.id);
+      const { password, ...others } = user._doc;
+      res.status(200).json(others);
+    } catch (err) {
+      res.status(500).json({ msg: err.message });
     }
   },
 };
